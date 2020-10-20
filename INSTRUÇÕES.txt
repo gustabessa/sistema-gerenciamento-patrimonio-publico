@@ -1,0 +1,33 @@
+Título: Programa de Gerenciamento de Patrimônio Público
+Aplicação desenvolvida em Java 8 (1.8.0_241), na IDE NetBeans 8.2 (patch 2).
+Desenvolvida para se comunicar com o banco de dados ORACLE, versão ORACLEXE 11G.
+
+--------------------------------------------------------------------------------------------
+
+Conteúdo:
+
+Diretório 'jar' com as duas bibliotecas importadas:
+ - itext
+ - driver de comunicação ORACLE
+
+Diretório 'Trabalho02' com o código fonte da aplicação.
+
+TXT 'readme'
+
+TXT 'INSTALAR_BANCO' com instruções SQL de criação da tablespace, do usuário, das tabelas, relacionamentos,criação e inicialização de sequencias para ids autoincrementais das tabelas, e ao final, código comentado com todos os DROPs do banco, remover todas as tabelas e sequencias (já está em ordem, respeitando os relacionamentos, necessário apenas selecionar tudo e executar os comandos)
+
+--------------------------------------------------------------------------------------------
+
+Conteúdo da aplicação e instruções de execução:
+
+Aplicação quando aberta em uma IDE de desenvolvimento JAVA, exibe:
+
+- as classes utilizadas no trabalho, incluindo as classes de teste do banco de dados, para maior praticidade caso seja necessário testar se o banco está se comunicando corretamente. 
+
+- duas imagens formato png, um ícone de lupa de busca e um ícone de fechar
+
+- das classes, algumas são JFrames, ou seja, serão exibidas visualmente no trabalho, outras são Beans, outras são DAOs (classes destinadas para a comunicação do programa com o banco, através da classe ConnectionFactory, que instancia uma conexão e retorna ao DAO no momento que precisar dela), algumas exportam determinado conteúdo do software via PDF, e outras servem de configurações, como renderizadores de células de tabelas, comparadores para ordenar listas, modelos abstratos para tabelas, etc.
+
+- para inicializar corretamente o software, execute a classe JFrameLogin.java  (que foi definida como classe principal do projeto, portanto executar diretamente o projeto, executará o metodo principal desta classe), insira no login o usuário 'admin' e na senha '12345' (usuário criado e inserido no banco de dados através do conteúdo do TXT 'INSTALAR_BANCO'. Caso não tenha seguido a instalação pelo TXT, deve-se inserir inicialmente um usuário administrador diretamente no banco para efetuar o login, e note que, a senha digitada no software será primeiramente criptografada (via algoritmo SHA-256) e posteriormente comparada com o conteúdo no banco. Por exemplo, se inserido '12345', o software buscará no banco '5994471ABB01112AFCC18159F6CC74B4F511B99806DA59B3CAF5A9C173CACFC5'. Se precisar de um exemplo de como inserir o primeiro usuário, consulte o TXT 'INSTALAR_BANCO').
+
+- opcionalmente, o projeto foi compilado construído, portanto pode ser executado a partir do executável Trabalho02.jar, no diretório dist do projeto do Trabalho02. (entretanto, recomenda-se executar via IDE, para que se haja alguma exceção, que seja possível visualizar)

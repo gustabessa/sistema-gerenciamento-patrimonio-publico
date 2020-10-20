@@ -1,0 +1,203 @@
+--create tablespace e user
+--IMPORTANTE: MUDAR O CAMINHO DO DATAFILE PARA O CAMINHO QUE SEU ORACLEXE TA INSTALADO
+--IMPORTANTE: para a exportação PDF funcionar, sobrescrever os caminhos absolutos de onde deseja que eles sejam salvos
+-- em seus respectivos arquivos EXPORT
+/*
+create tablespace tbs_SGPP
+datafile 'C:\oraclexe\app\oracle\oradata\tbd_sgpp.dbf' size 100M reuse
+autoextend on next 10M maxsize 200M
+online;
+
+--mudar o user do banco de dados se desejar, mas mude o user nos grants abaixo e na connectionFactory na IDE JAVA tbm.
+
+-- aumentar a quantidade de conexões
+alter system set processes = 300 scope = spfile; 
+
+-- rodar bat stopDB e startDB logo apos
+
+create user GustavoBessa
+identified by 12345
+default tablespace tbs_SGPP
+temporary tablespace temp;
+
+create role perf_admin;
+
+grant
+create cluster,
+create database link,
+create procedure,
+create session,
+create sequence,
+create synonym,
+create table,
+create any type,
+create trigger,
+create view
+to perf_admin;
+
+grant perf_admin to GustavoBessa
+
+Alter User GustavoBessa Quota Unlimited on
+tbs_SGPP;
+
+*/
+--estruturação do banco de dados
+
+    
+    create table campus(
+    ID		            number(6)	not null,
+    NOME		        varchar2(60),
+    ABREVIACAO          VARCHAR2(10),
+    DATA_CRIACAO        DATE,
+    CIDADE              VARCHAR2(30),
+    BAIRRO              VARCHAR2(30),
+    ENDERECO            VARCHAR2(60),
+    CEP                 VARCHAR2(8),
+    constraint pk_campus primary key (id)
+    );
+
+    create table servidor(
+    id          number(6)       not null,
+    nome        varchar2(60),
+    email       varchar2(60),
+    id_campus   number(6)       not null,
+    cargo       varchar2(30),
+    papel       varchar2(10),
+    login       varchar2(30),
+    senha       varchar2(100),
+    constraint pk_servidor primary key (id),
+    constraint fk_campus_servidor foreign key (id_campus) references campus (id)
+    );
+    
+      
+    create table ambiente (
+    id                  number(6)   not null,
+    id_campus           number(6)   not null,
+    id_servidor         number(6)   not null,
+    data_criacao        date,
+    data_modificacao    date,
+    descricao		varchar2(30),
+    constraint pk_ambiente primary key (id),
+    constraint fk_campus_ambiente foreign key (id_campus) references campus (id),
+    constraint fk_servidor_ambiente foreign key (id_servidor) references servidor (id)
+    );
+    
+        
+    create table item (
+    id                  number(6)   not null,
+    id_servidor         number(6)   not null,
+    id_ambiente         number(6)   not null,
+    especificacao       varchar2(60),
+    cod_patrimonio      number(6),
+    estado              number(1),
+    data_compra         date,
+    valor_compra        number(6,2),
+    data_criacao        date,
+    data_modificacao    date,
+    constraint pk_item primary key (id),
+    constraint fk_ambiente_item foreign key (id_ambiente) references ambiente (id),
+    constraint fk_servidor_item foreign key (id_servidor) references servidor (id)
+    );
+    
+    
+    
+    create table revisaoanual (
+    id                  number(6)   not null,
+    id_servidor         number(6)   not null,
+    id_ambiente         number(6)   not null,
+    ano                 number(4),
+    estado              varchar2(15),
+    data_criacao        date,
+    data_modificacao    date,
+    constraint pk_revisaoanual primary key (id),
+    constraint fk_ambiente_revisaoanual foreign key (id_ambiente) references ambiente (id),
+    constraint fk_servidor_revisaoanual foreign key (id_servidor) references servidor (id)
+    );
+    
+    
+    
+    
+    create table itensrevisao (
+    id                  number(6) not null,
+    id_revisaoanual     number(6) not null,
+    id_item             number(6) not null,
+    verificacao         varchar2(25),
+    data_criacao        date,
+    data_modificacao    date,
+    estado		number(1,0),
+    constraint pk_itensrevisao primary key (id),
+    constraint fk_revisaoanual_itensrevisao foreign key (id_revisaoanual) references revisaoanual (id),
+    constraint fk_item_itensrevisao foreign key (id_item) references item (id)
+    );
+    
+       
+    
+    create table movimentacaodono (
+    id              number(6) not null,
+    id_origem       number(6) not null,
+    id_destino      number(6) not null,
+    motivo          varchar2(255),
+    data_criacao    date,
+    id_ambiente	number(6,0),
+    constraint pk_movimentacaodono primary key (id),
+    constraint fk_ambiente_movimentacaodono foreign key (id_ambiente) references ambiente (id),
+    constraint fk_origem_movimentacaodono foreign key (id_origem) references servidor (id),
+    constraint fk_destino_movimentacaodono foreign key (id_destino) references servidor (id)
+    );
+    
+    
+      
+    create table movimentacaoitem (
+    id              number(6) not null,
+    id_origem       number(6) not null,
+    id_destino      number(6) not null,
+    motivo          varchar2(255),
+    data_criacao    date,
+    id_item		number(6,0),
+    constraint pk_movimentacaoitem primary key (id),
+    constraint fk_item_movimentacaoitem foreign key (id_item) references item (id),
+    constraint fk_origem_movimentacaoitem foreign key (id_origem) references ambiente (id),
+    constraint fk_destino_movimentacaoitem foreign key (id_destino) references ambiente (id)
+    );
+
+    --sequences:
+
+    CREATE SEQUENCE AMBIENTE_SEQ INCREMENT BY 1 MAXVALUE 9999999999999999999999999999 MINVALUE 0 CACHE 20;
+    CREATE SEQUENCE CAMPUS_SEQ INCREMENT BY 1 MAXVALUE 9999999999999999999999999999 MINVALUE 0 CACHE 20;
+    CREATE SEQUENCE ITEM_SEQ INCREMENT BY 1 MAXVALUE 9999999999999999999999999999 MINVALUE 0 CACHE 20;
+    CREATE SEQUENCE ITENSREVISAO_SEQ INCREMENT BY 1 MAXVALUE 9999999999999999999999999999 MINVALUE 0 CACHE 20;
+    CREATE SEQUENCE MOVIMENTACAODONO_SEQ INCREMENT BY 1 MAXVALUE 9999999999999999999999999999 MINVALUE 0 CACHE 20;
+    CREATE SEQUENCE MOVIMENTACAOITEM_SEQ INCREMENT BY 1 MAXVALUE 9999999999999999999999999999 MINVALUE 0 CACHE 20;
+    CREATE SEQUENCE REVISAOANUAL_SEQ INCREMENT BY 1 MAXVALUE 9999999999999999999999999999 MINVALUE 0 CACHE 20;
+    CREATE SEQUENCE SERVIDOR_SEQ INCREMENT BY 1 MAXVALUE 9999999999999999999999999999 MINVALUE 0 CACHE 20;
+    
+    select CAMPUS_SEQ.nextval, AMBIENTE_SEQ.nextval, ITEM_SEQ.nextval, ITENSREVISAO_SEQ.nextval, MOVIMENTACAODONO_SEQ.nextval, MOVIMENTACAOITEM_SEQ.nextval, 
+    REVISAOANUAL_SEQ.nextval, SERVIDOR_SEQ.nextval from dual;
+
+    insert into campus values(campus_seq.nextval, 'ADMINISTRATIVO', 'ADM', sysdate, 'VIRTUAL', 'VIRTUAL', 'VIRTUAL', '00000000');
+    insert into servidor values(servidor_seq.nextval, 'ADMINISTRADOR', 'adm@adm.com', 1, 'ADM', 'adm', 'admin', '5994471ABB01112AFCC18159F6CC74B4F511B99806DA59B3CAF5A9C173CACFC5');
+    insert into ambiente values(ambiente_seq.nextval, 1, 1, sysdate, sysdate, 'ITENS PAGOS');
+
+    --DESINSTALAR O BANCO
+    /*
+    drop table movimentacaodono;
+    drop table movimentacaoitem;
+    drop table itensrevisao;
+    drop table item;
+    drop table revisaoanual;
+    drop table ambiente;
+    drop table servidor;
+    drop table campus;
+    
+    DROP SEQUENCE AMBIENTE_SEQ;
+    DROP SEQUENCE CAMPUS_SEQ;
+    DROP SEQUENCE ITEM_SEQ;
+    DROP SEQUENCE ITENSREVISAO_SEQ;
+    DROP SEQUENCE MOVIMENTACAODONO_SEQ;
+    DROP SEQUENCE MOVIMENTACAOITEM_SEQ;
+    DROP SEQUENCE REVISAOANUAL_SEQ;
+    DROP SEQUENCE SERVIDOR_SEQ;
+    
+	*/
+
+
